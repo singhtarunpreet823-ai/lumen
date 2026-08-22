@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button, FieldError, Input, Label } from "@/components/ui/primitives";
 import { Logo } from "@/components/ui/logo";
 import { useLumen } from "@/lib/store";
@@ -32,6 +32,7 @@ export default function SignupPage() {
   const router = useRouter();
   const setProfile = useLumen((s) => s.setProfile);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [supabaseError, setSupabaseError] = useState("");
 
   const {
@@ -61,7 +62,9 @@ export default function SignupPage() {
         router.push("/dashboard");
       }
     } catch (e) {
-      setSupabaseError(e instanceof Error ? e.message : "Something went wrong");
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      setSupabaseError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -96,12 +99,35 @@ export default function SignupPage() {
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" autoComplete="new-password" placeholder="8+ characters" {...register("password")} />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              placeholder="8+ characters"
+              className="pr-11"
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide passwords" : "Show passwords"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-ink cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           <FieldError message={errors.password?.message} />
         </div>
         <div>
           <Label htmlFor="confirm">Confirm password</Label>
-          <Input id="confirm" type="password" autoComplete="new-password" placeholder="Repeat password" {...register("confirm")} />
+          <Input
+            id="confirm"
+            type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
+            placeholder="Repeat password"
+            {...register("confirm")}
+          />
           <FieldError message={errors.confirm?.message} />
         </div>
         {supabaseError && <p className="text-sm text-expense">{supabaseError}</p>}

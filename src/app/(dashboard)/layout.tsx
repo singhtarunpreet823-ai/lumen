@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { SiteSearch } from "@/components/dashboard/site-search";
 import { useLumen } from "@/lib/store";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -31,8 +32,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen bg-bg">
+    <div id="main" className="flex min-h-screen bg-bg">
       <Sidebar />
+      <SiteSearch />
       <main className="relative min-w-0 flex-1 pb-20 lg:pb-0">
         <motion.div
           key={pathname}

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Save, Download, RotateCcw, Trash2, Moon, Sun } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/shared";
 import { Button, Card, CardHeader, Input, Label, FieldError, Select } from "@/components/ui/primitives";
+import { ConfirmDialog } from "@/components/ui/confirm";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTheme } from "@/components/theme";
 import { useLumen, useProfile } from "@/lib/store";
@@ -29,6 +30,8 @@ export default function SettingsPage() {
   const setBudgets = useLumen((s) => s.setBudgets);
   const setGoals = useLumen((s) => s.setGoals);
   const { theme } = useTheme();
+  const [confirmWipe, setConfirmWipe] = useState(false);
+  const [confirmReseed, setConfirmReseed] = useState(false);
 
   const {
     register,
@@ -139,10 +142,10 @@ export default function SettingsPage() {
               <Button variant="secondary" className="w-full justify-start" onClick={exportData}>
                 <Download className="h-4 w-4" /> Export as JSON
               </Button>
-              <Button variant="secondary" className="w-full justify-start" onClick={reseed}>
+              <Button variant="secondary" className="w-full justify-start" onClick={() => setConfirmReseed(true)}>
                 <RotateCcw className="h-4 w-4" /> Regenerate demo data
               </Button>
-              <Button variant="danger" className="w-full justify-start" onClick={wipe}>
+              <Button variant="danger" className="w-full justify-start" onClick={() => setConfirmWipe(true)}>
                 <Trash2 className="h-4 w-4" /> Clear all data
               </Button>
             </div>
@@ -153,6 +156,24 @@ export default function SettingsPage() {
           </Card>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmWipe}
+        onClose={() => setConfirmWipe(false)}
+        onConfirm={wipe}
+        title="Clear all data?"
+        description="This permanently deletes every transaction, budget and goal stored in this browser. This cannot be undone."
+        confirmLabel="Yes, delete everything"
+        danger
+      />
+      <ConfirmDialog
+        open={confirmReseed}
+        onClose={() => setConfirmReseed(false)}
+        onConfirm={reseed}
+        title="Regenerate demo data?"
+        description="Your current transactions, budgets and goals will be replaced with a fresh seeded workspace."
+        confirmLabel="Regenerate"
+      />
     </div>
   );
 }

@@ -41,6 +41,11 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--ink));
@@ -151,5 +156,67 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Skip link (a11y) ---------- */
+
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  border-radius: 0 0 12px 12px;
+  background: rgb(var(--primary));
+  color: #052e22;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ---------- Print stylesheet ---------- */
+
+@media print {
+  header,
+  footer,
+  aside,
+  nav,
+  .no-print,
+  .recharts-wrapper ~ * {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    transition: none !important;
+  }
+  [data-theme="dark"] {
+    --bg: 255 255 255;
+    --surface: 255 255 255;
+    --surface-2: 245 245 245;
+    --ink: 0 0 0;
+    --muted: 90 90 90;
+    --border: 210 210 210;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  .glass,
+  .glass-strong {
+    background: #fff !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+    color: #666;
   }
 }

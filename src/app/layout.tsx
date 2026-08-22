@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Sora, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme";
 import { Toaster } from "@/components/ui/toaster";
+import { CookieBanner } from "@/components/ui/cookie-banner";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
@@ -35,9 +36,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" data-theme="dark" className={`${inter.variable} ${sora.variable} ${mono.variable}`}>
       <body className="font-sans antialiased">
+        <a href="#main" className="skip-link no-print">
+          Skip to content
+        </a>
         <ThemeProvider>
           {children}
           <Toaster />
+          <CookieBanner />
         </ThemeProvider>
       </body>
     </html>

@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/dashboard/shared";
 import { BudgetRadial } from "@/components/charts";
 import { Button, Card, CardHeader, Progress, Select, Input, Label, FieldError, EmptyState, Badge } from "@/components/ui/primitives";
 import { Dialog } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm";
 import { useLumen, useProfile } from "@/lib/store";
 import { budgetStatuses, lastNMonths, currentMonthKey } from "@/lib/analytics";
 import { monthKeyFullLabel, monthKeyLabel, formatCurrency } from "@/lib/format";
@@ -32,6 +33,7 @@ export default function BudgetsPage() {
   const [month, setMonth] = useState(currentMonthKey());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<{ categoryId: string; amount: number } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ month: string; categoryId: string; name: string } | null>(null);
 
   const statuses = useMemo(
     () => budgetStatuses(data.transactions, data.budgets, month),
@@ -198,10 +200,7 @@ export default function BudgetsPage() {
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
-                        onClick={() => {
-                          deleteBudget(month, s.budget.categoryId);
-                          toast.success(`${cat.name} budget removed`);
-                        }}
+                        onClick={() => setPendingDelete({ month: month, categoryId: s.budget.categoryId, name: cat.name })}
                         aria-label={`Delete ${cat.name} budget`}
                         className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-2 hover:text-expense cursor-pointer"
                       >
@@ -249,6 +248,20 @@ export default function BudgetsPage() {
           </div>
         </form>
       </Dialog>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          deleteBudget(pendingDelete.month, pendingDelete.categoryId);
+          toast.success(`${pendingDelete.name} budget removed`);
+        }}
+        title={`Remove ${pendingDelete?.name ?? "this"} budget?`}
+        description="Spending already recorded stays untouched — only the monthly limit is removed."
+        confirmLabel="Remove budget"
+        danger
+      />
     </div>
   );
 }

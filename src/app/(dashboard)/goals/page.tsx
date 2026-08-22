@@ -6,6 +6,7 @@ import { Plus, Target, Trash2, PiggyBank, TrendingUp, CalendarDays } from "lucid
 import { PageHeader } from "@/components/dashboard/shared";
 import { Button, Card, Input, Label, FieldError, EmptyState, Progress, Select } from "@/components/ui/primitives";
 import { Dialog } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm";
 import { useLumen, useProfile } from "@/lib/store";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useForm } from "react-hook-form";
@@ -39,8 +40,9 @@ export default function GoalsPage() {
   const deleteGoal = useLumen((s) => s.deleteGoal);
   const currency = profile?.currency ?? "USD";
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [activeGoal, setActiveGoal] = useState<string | null>(null);
+const [createOpen, setCreateOpen] = useState(false);
+const [activeGoal, setActiveGoal] = useState<string | null>(null);
+const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
 
   const totalSaved = useMemo(() => goals.reduce((s, g) => s + g.saved, 0), [goals]);
   const avgPct = useMemo(
@@ -146,10 +148,7 @@ export default function GoalsPage() {
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      deleteGoal(g.id);
-                      toast.success("Goal removed");
-                    }}
+                    onClick={() => setPendingDelete({ id: g.id, name: g.name })}
                     aria-label={`Delete ${g.name}`}
                     className="rounded-lg p-1.5 text-muted opacity-0 transition-all hover:bg-surface-2 hover:text-expense group-hover:opacity-100 cursor-pointer"
                   >
@@ -320,6 +319,20 @@ export default function GoalsPage() {
           </div>
         </form>
       </Dialog>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          deleteGoal(pendingDelete.id);
+          toast.success("Goal removed");
+        }}
+        title={`Delete "${pendingDelete?.name ?? "goal"}"?`}
+        description="The goal and its progress tracking will be permanently removed from this workspace."
+        confirmLabel="Delete goal"
+        danger
+      />
     </div>
   );
 }

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Github, Twitter, Linkedin } from "lucide-react";
+import { ArrowRight, Sparkles, Github, Mail, Phone } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/primitives";
+
+const REPO = "https://github.com/singhtarunpreet823-ai/lumen";
 
 export function CTA() {
   return (
@@ -70,31 +72,77 @@ export function Footer() {
               Understand your money. Build your future. A calm, modern personal-finance dashboard with an AI copilot.
             </p>
             <div className="mt-5 flex gap-2">
-              {[Github, Twitter, Linkedin].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label="Social link"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-primary/40 hover:text-primary"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
+              <a
+                href={REPO}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Lumen on GitHub"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+              <a
+                href="mailto:hello@lumen.app?subject=Hello%20Lumen"
+                aria-label="Email the Lumen team"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                <Mail className="h-4 w-4" />
+              </a>
+              <a
+                href="tel:+15550102030"
+                aria-label="Call Lumen support"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                <Phone className="h-4 w-4" />
+              </a>
             </div>
           </div>
           {[
-            { title: "Product", links: ["Features", "AI Copilot", "Pricing", "Changelog"] },
-            { title: "Company", links: ["About", "Blog", "Careers", "Press kit"] },
-            { title: "Resources", links: ["Help center", "API docs", "Security", "Status"] },
+            {
+              title: "Product",
+              links: [
+                { label: "Features", href: "/#features" },
+                { label: "Live demo", href: "/login" },
+                { label: "AI Copilot", href: "/#copilot" },
+                { label: "Pricing", href: "/#pricing" },
+              ],
+            },
+            {
+              title: "Company",
+              links: [
+                { label: "Security", href: "/#security" },
+                { label: "FAQ", href: "/#faq" },
+                { label: "Source code", href: REPO, external: true },
+              ],
+            },
+            {
+              title: "Support",
+              links: [
+                { label: "hello@lumen.app", href: "mailto:hello@lumen.app" },
+                { label: "+1 (555) 010-2030", href: "tel:+15550102030" },
+                { label: "Help center", href: "/legal#privacy" },
+              ],
+            },
           ].map((col) => (
             <div key={col.title}>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted">{col.title}</p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="text-sm text-ink/75 transition-colors hover:text-primary">
-                      {l}
-                    </a>
+                  <li key={l.label}>
+                    {"external" in l && l.external ? (
+                      <a
+                        href={l.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-ink/75 transition-colors hover:text-primary"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link href={l.href} className="text-sm text-ink/75 transition-colors hover:text-primary">
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -104,9 +152,15 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted sm:flex-row">
           <p>© {new Date().getFullYear()} Lumen. Crafted with care.</p>
           <div className="flex gap-5">
-            <a href="#" className="hover:text-primary">Privacy</a>
-            <a href="#" className="hover:text-primary">Terms</a>
-            <a href="#" className="hover:text-primary">Cookies</a>
+            <Link href="/legal#privacy" className="hover:text-primary">
+              Privacy
+            </Link>
+            <Link href="/legal#terms" className="hover:text-primary">
+              Terms
+            </Link>
+            <Link href="/legal#cookies" className="hover:text-primary">
+              Cookies
+            </Link>
           </div>
         </div>
       </div>

@@ -34,6 +34,20 @@ Lumen's security posture, verified against the live deployment.
 - **Never expose the Supabase `service_role` key** anywhere client-side; it bypasses RLS.
 - **The Vercel CLI token used during setup was revoked** after deployment.
 
+## Dependency scan
+
+`npm audit` (Aug 2026) reports 5 high-severity advisories, none exploitable in this deployment:
+
+| Advisory | Why it doesn't apply |
+| --- | --- |
+| `glob` CLI command injection (via eslint-config-next) | Dev-only toolchain; `glob` CLI never executed in build or runtime |
+| Next.js Image Optimizer DoS | `images.unoptimized: true` — optimizer is disabled |
+| Next.js middleware/proxy request smuggling & cache poisoning | No middleware or rewrites exist in the app |
+| Server Components DoS / RSC deserialization | Site is fully static-prerendered; no dynamic RSC request handling of untrusted input |
+| PostCSS source-map issues (bundled inside next) | Build-time only; no user-supplied CSS is ever processed |
+
+**Upgrade path**: Next 15/16 removes the flagged code paths but requires React 19 migration — planned before any multi-user backend launch. Re-run `npm audit` after every dependency change.
+
 ## Rules for contributors
 
 1. Never commit `.env`, tokens, or keys. Use `.env.example` as the template.

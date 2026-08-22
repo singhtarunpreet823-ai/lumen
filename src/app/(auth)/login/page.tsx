@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button, FieldError, Input, Label } from "@/components/ui/primitives";
 import { Logo } from "@/components/ui/logo";
 import { useLumen } from "@/lib/store";
@@ -36,7 +36,21 @@ export default function LoginPage() {
   const enterDemo = useLumen((s) => s.enterDemo);
   const setProfile = useLumen((s) => s.setProfile);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [supabaseError, setSupabaseError] = useState("");
+  const failsRef = useRef(0);
+  const lockUntilRef = useRef(0);
+  const [lockSeconds, setLockSeconds] = useState(0);
+
+  useEffect(() => {
+    if (lockSeconds <= 0) return;
+    const t = setInterval(() => {
+      const left = Math.max(0, Math.ceil((lockUntilRef.current - Date.now()) / 1000));
+      setLockSeconds(left);
+      if (left === 0) failsRef.current = 0;
+    }, 1000);
+    return () => clearInterval(t);
+  }, [lockSeconds]);
 
   const {
     register,
@@ -45,6 +59,7 @@ export default function LoginPage() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onLogin = handleSubmit(async (values) => {
+    if (Date.now() < lockUntilRef.current) return;
     setLoading(true);
     setSupabaseError("");
     try {
@@ -64,7 +79,16 @@ export default function LoginPage() {
         router.push("/dashboard");
       }
     } catch (e) {
-      setSupabaseError(e instanceof Error ? e.message : "Something went wrong");
+      failsRef.current += 1;
+      if (failsRef.current >= 5) {
+        lockUntilRef.current = Date.now() + 30_000;
+        setLockSeconds(30);
+        toast.error("Too many attempts. Try again in 30 seconds.");
+      } else {
+        const msg = e instanceof Error ? e.message : "Something went wrong";
+        setSupabaseError(msg);
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -92,11 +116,33 @@ export default function LoginPage() {
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" autoComplete="current-password" placeholder="********" {...register("password")} />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="********"
+              className="pr-11"
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-2 hover:text-ink cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
           <FieldError message={errors.password?.message} />
         </div>
         {supabaseError && <p className="text-sm text-expense">{supabaseError}</p>}
-        <Button type="submit" loading={loading} className="w-full" size="lg">
+        {lockSeconds > 0 && (
+          <p className="text-sm text-warning">
+            Too many failed attempts. You can try again in {lockSeconds}s.
+          </p>
+        )}
+        <Button type="submit" loading={loading} disabled={lockSeconds > 0} className="w-full" size="lg">
           Log in <ArrowRight className="h-4 w-4" />
         </Button>
       </form>

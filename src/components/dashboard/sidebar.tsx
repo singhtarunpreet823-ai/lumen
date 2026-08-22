@@ -13,6 +13,7 @@ import { Avatar } from "@/components/ui/primitives";
 import { useLumen, useProfile } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { SearchTrigger } from "@/components/dashboard/site-search";
 import { initials } from "@/lib/format";
 
 const NAV = [
@@ -58,6 +59,9 @@ export function Sidebar() {
           ))}
         </nav>
         <div className="mt-4 border-t border-border pt-4">
+          <div className="mb-3">
+            <SearchTrigger />
+          </div>
           <div className="flex items-center gap-3 rounded-xl px-3 py-2">
             {profile ? <Avatar name={profile.name} /> : <Avatar name="Guest" />}
             <div className="min-w-0 flex-1">

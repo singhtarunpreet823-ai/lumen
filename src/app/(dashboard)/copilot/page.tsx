@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles, Send, RotateCcw, Bot, User, TrendingUp, ArrowUpRight, Shield, Zap, Wallet,
+  Sparkles, Send, RotateCcw, Bot, User, TrendingUp, ArrowUpRight, Shield, Zap, Wallet, Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/dashboard/shared";
 import { CashflowChart, CategoryDonut, CategoryBars, BudgetRadial } from "@/components/charts";
 import { Button, Card, Input, Badge } from "@/components/ui/primitives";
@@ -276,6 +277,18 @@ function MessageBubble({ message, currency, theme }: { message: Message; currenc
         {!isUser && message.intent && (
           <div className="flex items-center gap-2 pl-1">
             <Badge tone="violet">#{message.intent.replace(/_/g, "-")}</Badge>
+            <button
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(message.text.join("\n"))
+                  .then(() => toast.success("Answer copied to clipboard"))
+                  .catch(() => toast.error("Could not copy"));
+              }}
+              aria-label="Copy answer to clipboard"
+              className="flex cursor-pointer items-center gap-1 rounded-lg px-1.5 py-1 text-[11px] text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+            >
+              <Copy className="h-3 w-3" /> Copy
+            </button>
           </div>
         )}
       </div>
